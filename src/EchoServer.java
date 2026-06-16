@@ -41,24 +41,27 @@ public class EchoServer {
         }
     }
 
-    private void handle(Socket socket) throws IOException {
-        System.out.printf("Подключен клиент: %s%n", socket);
-        try (socket;
-             Scanner reader = getReader(socket);
-             PrintWriter writer = getWriter(socket)) {
-            sendResponse("Привет " + socket, writer);
+    private void handle(Socket socket) {
+        try {
+            ClientConnection client = new ClientConnection(socket);
+            clients.add(client);
+
+            System.out.println("Connected: " + client.getUsername());
+            client.sendMessage("Your name is " + client.getUsername());
 
             while (true) {
-                String message = reader.nextLine();
-                System.out.printf("Got: %s%n", message);
+                String message = client.readMessage();
 
-                if (isEmptyMsg(message) || isQuitMsg(message)) {
-                    break;
+                if (message == null || message.isBlank() || "bye".equalsIgnoreCase(message)) {
+                    clients.remove(client);
+                    client.close();
+                    return;
                 }
-                sendResponse(message.toUpperCase(), writer);
+
+                System.out.printf("%s: %s%n", client.getUsername(), message);
             }
-        } catch (NoSuchElementException ex) {
-            System.out.println("Client dropped connection");
+        } catch (Exception e) {
+            System.out.println("Client disconnected");
         }
     }
 
