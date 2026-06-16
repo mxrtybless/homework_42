@@ -43,7 +43,14 @@ public class EchoServer {
             clients.add(client);
 
             System.out.println("Connected: " + client.getUsername());
+
             client.sendMessage("Your name is " + client.getUsername());
+
+            broadcast(
+                    "SERVER",
+                    client.getUsername() + " joined the chat",
+                    client
+            );
 
             while (true) {
                 String message = client.readMessage();
