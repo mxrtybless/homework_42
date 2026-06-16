@@ -65,6 +65,20 @@ public class EchoServer {
         }
     }
 
+    private void broadcast(String sender, String message, ClientConnection senderClient) {
+        String result = sender + ": " + message;
+
+        clients.forEach(client -> {
+            if (client == senderClient) {
+                return;
+            }
+            try {
+                client.sendMessage(result);
+            } catch (Exception ignored) {
+            }
+        });
+    }
+
     private boolean isQuitMsg(String message) {
         return "bye".equalsIgnoreCase(message);
     }
