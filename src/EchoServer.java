@@ -6,14 +6,16 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class EchoServer {
 
     private final int port;
-
     private final ExecutorService pool = Executors.newCachedThreadPool();
+    private final Set<ClientConnection> clients = ConcurrentHashMap.newKeySet();
 
     private EchoServer(int port) {
         this.port = port;
@@ -27,13 +29,7 @@ public class EchoServer {
         try (ServerSocket server = new ServerSocket(port)) {
             while (!server.isClosed()) {
                 Socket clientSocket = server.accept();
-                pool.submit(() -> {
-                    try {
-                        handle(clientSocket);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                });
+                pool.submit(() -> handle(clientSocket));
             }
         } catch (IOException e) {
             System.out.printf("Вероятнее всего порт %s занят.%n", port);
@@ -59,6 +55,8 @@ public class EchoServer {
                 }
 
                 System.out.printf("%s: %s%n", client.getUsername(), message);
+
+                broadcast(client.getUsername(), message, client);
             }
         } catch (Exception e) {
             System.out.println("Client disconnected");
@@ -72,6 +70,7 @@ public class EchoServer {
             if (client == senderClient) {
                 return;
             }
+
             try {
                 client.sendMessage(result);
             } catch (Exception ignored) {
@@ -102,6 +101,4 @@ public class EchoServer {
         InputStream stream = socket.getInputStream();
         return new Scanner(stream, "UTF-8");
     }
-
-    private final java.util.Set<ClientConnection> clients = java.util.concurrent.ConcurrentHashMap.newKeySet();
 }
