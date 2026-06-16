@@ -46,7 +46,7 @@ public class EchoServer {
 
             client.sendMessage("Your name is " + client.getUsername());
 
-            broadcast(
+            broadCast(
                     "SERVER",
                     client.getUsername() + " joined the chat",
                     client
@@ -59,7 +59,7 @@ public class EchoServer {
 
                     clients.remove(client);
 
-                    broadcast(
+                    broadCast(
                             "SERVER",
                             client.getUsername() + " left the chat",
                             client
@@ -71,14 +71,14 @@ public class EchoServer {
 
                 System.out.printf("%s: %s%n", client.getUsername(), message);
 
-                broadcast(client.getUsername(), message, client);
+                broadCast(client.getUsername(), message, client);
             }
         } catch (Exception e) {
             System.out.println("Client disconnected");
         }
     }
 
-    private void broadcast(String sender, String message, ClientConnection senderClient) {
+    private void broadCast(String sender, String message, ClientConnection senderClient) {
         String result = sender + ": " + message;
 
         clients.forEach(client -> {
