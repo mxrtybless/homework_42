@@ -56,7 +56,15 @@ public class EchoServer {
                 String message = client.readMessage();
 
                 if (message == null || message.isBlank() || "bye".equalsIgnoreCase(message)) {
+
                     clients.remove(client);
+
+                    broadcast(
+                            "SERVER",
+                            client.getUsername() + " left the chat",
+                            client
+                    );
+
                     client.close();
                     return;
                 }
@@ -83,29 +91,5 @@ public class EchoServer {
             } catch (Exception ignored) {
             }
         });
-    }
-
-    private boolean isQuitMsg(String message) {
-        return "bye".equalsIgnoreCase(message);
-    }
-
-    private boolean isEmptyMsg(String message) {
-        return message == null || message.isBlank();
-    }
-
-    private void sendResponse(String response, PrintWriter writer) {
-        writer.write(response);
-        writer.write(System.lineSeparator());
-        writer.flush();
-    }
-
-    private PrintWriter getWriter(Socket socket) throws IOException {
-        OutputStream stream = socket.getOutputStream();
-        return new PrintWriter(stream);
-    }
-
-    private Scanner getReader(Socket socket) throws IOException {
-        InputStream stream = socket.getInputStream();
-        return new Scanner(stream, "UTF-8");
     }
 }
