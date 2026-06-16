@@ -85,4 +85,6 @@ public class EchoServer {
         InputStream stream = socket.getInputStream();
         return new Scanner(stream, "UTF-8");
     }
+
+    private final java.util.Set<ClientConnection> clients = java.util.concurrent.ConcurrentHashMap.newKeySet();
 }
